@@ -75,42 +75,92 @@ def tinyMazeSearch(problem):
 
 def depthFirstSearch(problem):
     """
-    Procure os nós mais profundos na árvore de busca primeiro.
-
-    Seu algoritmo de busca precisa retornar uma lista de ações que alcançam o
-    objetivo. Certifique-se de implementar um algoritmo de busca em grafo.
-
-    Para começar, você pode experimentar alguns desses comandos simples para
-    entender o problema de busca que está sendo passado:
-
-    print "Start:", problem.getStartState()
-    print "Is the start a goal?", problem.isGoalState(problem.getStartState())
-    print "Start's successors:", problem.getSuccessors(problem.getStartState())
+    Implementa o algoritmo de busca em profundidade (DFS).
+    Retorna uma lista de ações que leva do estado inicial ao objetivo.
     """
+    # Inicializa estruturas de dados
+    fronteira = util.Stack()                     # Pilha para fronteira de busca
+    visitados = set()                            # Conjunto para estados visitados
+    fronteira.push((problem.getStartState(), [])) # Tupla (estado, ações)
+
+ 
+
+    while not fronteira.isEmpty():
+        estado_atual, acoes = fronteira.pop()
+        
+        # Verifica se chegou ao objetivo
+        if problem.isGoalState(estado_atual):
+            return acoes
+            
+        # Explora sucessores se estado não foi visitado
+        if estado_atual not in visitados:
+            visitados.add(estado_atual)
+            
+            # Adiciona sucessores não visitados à pilha
+            for sucessor, acao, custo in problem.getSuccessors(estado_atual):
+                if sucessor not in visitados:
+                    novas_acoes = acoes + [acao]
+                    fronteira.push((sucessor, novas_acoes))
     
+    return [] # Retorna lista vazia se não encontrar solução
 
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-
-
-
-
-
-
-
-
-    util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
-    """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """
+    Implementa o algoritmo de busca em largura (BFS).
+    Retorna uma lista de ações que leva do estado inicial ao objetivo.
+    """
+    # Inicializa estruturas de dados
+    fronteira = util.Queue()                     # Fila para fronteira de busca
+    visitados = set()                            # Conjunto para estados visitados
+    fronteira.push((problem.getStartState(), [])) # Tupla (estado, ações)
+    visitados.add(problem.getStartState())       # Marca estado inicial como visitado
+
+    while not fronteira.isEmpty():
+        estado_atual, acoes = fronteira.pop()
+        
+        # Verifica se chegou ao objetivo
+        if problem.isGoalState(estado_atual):
+            return acoes
+            
+        # Explora todos os sucessores
+        for sucessor, acao, custo in problem.getSuccessors(estado_atual):
+            if sucessor not in visitados:
+                visitados.add(sucessor)          # Marca sucessor como visitado
+                novas_acoes = acoes + [acao]     # Adiciona ação ao caminho
+                fronteira.push((sucessor, novas_acoes))
+    
+    return [] # Retorna lista vazia se não encontrar solução
 
 def uniformCostSearch(problem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """
+    Implementa o algoritmo de busca de custo uniforme (UCS).
+    Retorna uma lista de ações que leva do estado inicial ao objetivo com menor custo.
+    """
+    # Inicializa estruturas de dados
+    fronteira = util.PriorityQueue()                   # Fila de prioridade por custo
+    visitados = set()                                  # Conjunto de estados visitados
+    fronteira.push((problem.getStartState(), [], 0), 0)  # (estado, ações, custo_total), prioridade
+
+    while not fronteira.isEmpty():
+        estado_atual, acoes, custo_atual = fronteira.pop()
+        
+        # Se o estado atual não foi visitado
+        if estado_atual not in visitados:
+            visitados.add(estado_atual)
+            
+            # Verifica se chegou ao objetivo
+            if problem.isGoalState(estado_atual):
+                return acoes
+            
+            # Explora sucessores
+            for sucessor, acao, custo in problem.getSuccessors(estado_atual):
+                if sucessor not in visitados:
+                    novo_custo = custo_atual + custo
+                    novas_acoes = acoes + [acao]
+                    fronteira.push((sucessor, novas_acoes, novo_custo), novo_custo)
+    
+    return [] # Retorna lista vazia se não encontrar solução
 
 def nullHeuristic(state, problem=None):
     """
@@ -120,10 +170,35 @@ def nullHeuristic(state, problem=None):
     return 0
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    """
+    Implementa o algoritmo de busca A*.
+    Usa g(n) + h(n) como prioridade, onde:
+    g(n) = custo até o nó atual
+    h(n) = valor da heurística para o nó atual
+    """
+    fronteira = util.PriorityQueue()
+    visitados = set()
+    inicio = problem.getStartState()
+    fronteira.push((inicio, [], 0), 0)  # (estado, ações, g(n))
 
+    while not fronteira.isEmpty():
+        estado_atual, acoes, custo_g = fronteira.pop()
+        
+        if estado_atual not in visitados:
+            visitados.add(estado_atual)
+            
+            if problem.isGoalState(estado_atual):
+                return acoes
+                
+            for sucessor, acao, custo in problem.getSuccessors(estado_atual):
+                if sucessor not in visitados:
+                    novo_g = custo_g + custo
+                    novo_h = heuristic(sucessor, problem)  # Valor da heurística
+                    prioridade = novo_g + novo_h          # f(n) = g(n) + h(n)
+                    novas_acoes = acoes + [acao]
+                    fronteira.push((sucessor, novas_acoes, novo_g), prioridade)
+    
+    return []
 
 # Abbreviations
 bfs = breadthFirstSearch
