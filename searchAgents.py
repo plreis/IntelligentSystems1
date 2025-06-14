@@ -427,35 +427,33 @@ class AStarFoodSearchAgent(SearchAgent):
 
 def foodHeuristic(state, problem):
     """
-    Your heuristic for the FoodSearchProblem goes here.
-
-    This heuristic must be consistent to ensure correctness.  First, try to come
-    up with an admissible heuristic; almost all admissible heuristics will be
-    consistent as well.
-
-    If using A* ever finds a solution that is worse uniform cost search finds,
-    your heuristic is *not* consistent, and probably not admissible!  On the
-    other hand, inadmissible or inconsistent heuristics may find optimal
-    solutions, so be careful.
-
-    The state is a tuple ( pacmanPosition, foodGrid ) where foodGrid is a Grid
-    (see game.py) of either True or False. You can call foodGrid.asList() to get
-    a list of food coordinates instead.
-
-    If you want access to info like walls, capsules, etc., you can query the
-    problem.  For example, problem.walls gives you a Grid of where the walls
-    are.
-
-    If you want to *store* information to be reused in other calls to the
-    heuristic, there is a dictionary called problem.heuristicInfo that you can
-    use. For example, if you only want to count the walls once and store that
-    value, try: problem.heuristicInfo['wallCount'] = problem.walls.count()
-    Subsequent calls to this heuristic can access
-    problem.heuristicInfo['wallCount']
+    Uma heurística para o FoodSearchProblem que considera:
+    1. A maior distância de Manhattan do Pacman até qualquer comida
+    2. A maior distância entre quaisquer dois pontos de comida
     """
     position, foodGrid = state
-    "*** YOUR CODE HERE ***"
-    return 0
+    foodList = foodGrid.asList()
+
+    # Se não há mais comida, custo é 0
+    if len(foodList) == 0:
+        return 0
+
+    # Função auxiliar para calcular distância de Manhattan entre dois pontos
+    def manhattanDist(xy1, xy2):
+        return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1])
+
+    # Parte 1: Encontra a maior distância entre Pacman e qualquer comida
+    max_pacman_food = max([manhattanDist(position, food) for food in foodList])
+
+    # Parte 2: Encontra a maior distância entre quaisquer dois pontos de comida
+    max_food_food = 0
+    for food1 in foodList:
+        for food2 in foodList:
+            dist = manhattanDist(food1, food2)
+            max_food_food = max(max_food_food, dist)
+
+    # Retorna o maior valor entre as duas distâncias
+    return max(max_pacman_food, max_food_food)
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"

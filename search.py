@@ -172,29 +172,32 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """
     Implementa o algoritmo de busca A*.
-    Usa g(n) + h(n) como prioridade, onde:
-    g(n) = custo até o nó atual
-    h(n) = valor da heurística para o nó atual
     """
     fronteira = util.PriorityQueue()
     visitados = set()
     inicio = problem.getStartState()
-    fronteira.push((inicio, [], 0), 0)  # (estado, ações, g(n))
+    fronteira.push((inicio, [], 0), 0)
+    nodes_expandidos = 0
 
     while not fronteira.isEmpty():
         estado_atual, acoes, custo_g = fronteira.pop()
+        nodes_expandidos += 1
         
         if estado_atual not in visitados:
             visitados.add(estado_atual)
             
             if problem.isGoalState(estado_atual):
+                print(f'A* Search - Informações:')
+                print(f'Nós expandidos: {nodes_expandidos}')
+                print(f'Custo do caminho: {custo_g}')
+                print(f'Tamanho do caminho: {len(acoes)}')
                 return acoes
                 
             for sucessor, acao, custo in problem.getSuccessors(estado_atual):
                 if sucessor not in visitados:
                     novo_g = custo_g + custo
-                    novo_h = heuristic(sucessor, problem)  # Valor da heurística
-                    prioridade = novo_g + novo_h          # f(n) = g(n) + h(n)
+                    novo_h = heuristic(sucessor, problem)
+                    prioridade = novo_g + novo_h
                     novas_acoes = acoes + [acao]
                     fronteira.push((sucessor, novas_acoes, novo_g), prioridade)
     
